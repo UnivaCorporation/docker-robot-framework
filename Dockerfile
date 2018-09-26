@@ -1,9 +1,12 @@
 FROM python:latest
 
-WORKDIR /tests
+COPY src /project/src/
+COPY setup.py /project/
 
-RUN pip install --no-cache-dir robotframework requests robotframework-requests
+WORKDIR /project
+RUN python setup.py bdist_wheel
+RUN pip install --no-cache-dir dist/*.whl
 
-ENTRYPOINT ["robot"]
+ENTRYPOINT ["pybot"]
 
 CMD ["--version" ]
