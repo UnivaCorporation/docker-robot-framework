@@ -1,2 +1,3 @@
 # docker-robot-framework
-Dockerfile for the Robot Framework
+
+The base framework for running Tortuga integration tests.
