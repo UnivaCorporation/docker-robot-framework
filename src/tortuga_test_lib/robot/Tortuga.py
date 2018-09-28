@@ -18,8 +18,9 @@ import os
 import secrets
 import string
 import subprocess
+import sys
 import time
-from logging import getLogger
+from logging import getLogger, StreamHandler
 from typing import Tuple, Union
 from urllib.parse import urlparse
 
@@ -40,6 +41,21 @@ class Tortuga:
     A collection of all Tortuga commands.
 
     """
+    def __init__(self, remote=False):
+        """
+        Initialization.
+
+        :param bool remote: if the library is being run in a remote
+                            environment
+
+        """
+        #
+        # Make sure log messages are being passed to stdout so that
+        # we can capture them
+        #
+        if remote:
+            logger.addHandler(StreamHandler(sys.stdout))
+
     def wait_for_firstboot(self):
         """
         Waits for tortuga to finish the boot/initialization process.

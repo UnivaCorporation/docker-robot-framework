@@ -21,7 +21,7 @@ pid = "/tmp/robot_server.pid"
 
 def serve():
     RobotRemoteServer(
-        Tortuga(),
+        Tortuga(remote=True),
         host='0.0.0.0',
         allow_remote_stop=True,
     )
