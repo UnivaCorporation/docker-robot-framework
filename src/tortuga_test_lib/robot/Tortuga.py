@@ -20,7 +20,7 @@ import string
 import subprocess
 import time
 from logging import getLogger
-from typing import Tuple, Union
+from typing import List, Tuple, Union
 from urllib.parse import urlparse
 
 import bs4
@@ -50,7 +50,7 @@ class Tortuga:
         """
         self.remote = remote
 
-    def log(self, level: str, msg: str):
+    def _log(self, level: str, msg: str):
         log_func = getattr(logger, level.lower())
         log_func(msg)
 
@@ -151,7 +151,7 @@ class Tortuga:
         }
         auth_req = client.construct_AuthorizationRequest(request_args=args)
         auth_url = auth_req.request(client.authorization_endpoint)
-        self.log('info', 'Auth URL: {}'.format(auth_url))
+        self._log('info', 'Auth URL: {}'.format(auth_url))
 
         #
         # Get the login page
@@ -172,7 +172,7 @@ class Tortuga:
         parsed_url = urlparse(resp.url)
         login_url = '{}://{}{}'.format(parsed_url.scheme, parsed_url.netloc,
                                        form['action'])
-        self.log('info', 'Login URL: {}'.format(login_url))
+        self._log('info', 'Login URL: {}'.format(login_url))
 
         #
         # Login the user
@@ -187,23 +187,26 @@ class Tortuga:
             raise Exception(
                 'Error posting login: {}'.format(resp.status_code))
         if not resp.url.startswith(client_redirect):
-            self.log('warning', 'URL: {}'.format(resp.url))
-            self.log('warning', resp.text)
+            self._log('warning', 'URL: {}'.format(resp.url))
+            self._log('warning', resp.text)
             raise Exception('Login failed')
 
         return True
 
-    def run_command(self, *args: str) -> str:
+    def run_command(self, *args: str,
+                    exit_code: Union[int, List[int]] = 0) -> str:
         """
         Runs a tortuga CLI command.
 
         :param args: the command and arguments to provide to the command
+        :param int exit_code: the exit code(s) to expect as successful
+                              (use a list if more than one is valid)
 
         :return str: the output of the command
 
         """
         cmd = ' '.join(args)
-        self.log('info', cmd)
+        self._log('info', cmd)
 
         proc = subprocess.run(
             [cmd],
@@ -212,10 +215,13 @@ class Tortuga:
             shell=True
         )
 
-        if proc.returncode != 0:
-            self.log('warning', proc.stdout.decode())
-            self.log('warning', proc.stderr.decode())
-            raise Exception('Non-zero return code returned: {}'.format(
+        if not isinstance(exit_code, list):
+            exit_code = [exit_code]
+
+        if proc.returncode not in exit_code:
+            self._log('warning', proc.stdout.decode())
+            self._log('warning', proc.stderr.decode())
+            raise Exception('Unsuccessful exit code: {}'.format(
                 proc.returncode
             ))
 
