@@ -37,6 +37,7 @@ setup(
     install_requires=[
         'boto3',
         'bs4',
+        'daemonize',
         'oic',
         'python-pam',
         'pyyaml',

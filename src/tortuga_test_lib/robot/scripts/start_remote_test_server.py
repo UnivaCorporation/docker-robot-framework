@@ -11,15 +11,22 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+from daemonize import Daemonize
 from robotremoteserver import RobotRemoteServer
 
 from tortuga_test_lib.robot.Tortuga import Tortuga
 
+pid = "/tmp/robot_server.pid"
 
-def main():
+
+def serve():
     RobotRemoteServer(
         Tortuga(),
         host='0.0.0.0',
         allow_remote_stop=True,
     )
+
+
+def main():
+    daemon = Daemonize(app="robot_server", pid=pid, action=serve)
+    daemon.start()
