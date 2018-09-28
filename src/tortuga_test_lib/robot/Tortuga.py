@@ -18,9 +18,8 @@ import os
 import secrets
 import string
 import subprocess
-import sys
 import time
-from logging import getLogger, StreamHandler
+from logging import getLogger
 from typing import Tuple, Union
 from urllib.parse import urlparse
 
@@ -49,12 +48,18 @@ class Tortuga:
                             environment
 
         """
+        self.remote = remote
+
+    def log(self, level: str, msg: str):
+        log_func = getattr(logger, level.lower())
+        log_func(msg)
+
         #
-        # Make sure log messages are being passed to stdout so that
-        # we can capture them
+        # If this is running remotely, then we need to spit out log messages
+        # using a print statement so they are properly captured
         #
-        if remote:
-            logger.addHandler(StreamHandler(sys.stdout))
+        if self.remote:
+            print('{}: {}'.format(level.upper(), msg))
 
     def wait_for_firstboot(self):
         """
@@ -146,7 +151,7 @@ class Tortuga:
         }
         auth_req = client.construct_AuthorizationRequest(request_args=args)
         auth_url = auth_req.request(client.authorization_endpoint)
-        logger.info('Auth URL: {}'.format(auth_url))
+        self.log('info', 'Auth URL: {}'.format(auth_url))
 
         #
         # Get the login page
@@ -167,7 +172,7 @@ class Tortuga:
         parsed_url = urlparse(resp.url)
         login_url = '{}://{}{}'.format(parsed_url.scheme, parsed_url.netloc,
                                        form['action'])
-        logger.info('Login URL: {}'.format(login_url))
+        self.log('info', 'Login URL: {}'.format(login_url))
 
         #
         # Login the user
@@ -182,8 +187,8 @@ class Tortuga:
             raise Exception(
                 'Error posting login: {}'.format(resp.status_code))
         if not resp.url.startswith(client_redirect):
-            logger.warning('URL: {}'.format(resp.url))
-            logger.warning(resp.text)
+            self.log('warning', 'URL: {}'.format(resp.url))
+            self.log('warning', resp.text)
             raise Exception('Login failed')
 
         return True
@@ -198,7 +203,7 @@ class Tortuga:
 
         """
         cmd = ' '.join(args)
-        logger.info(cmd)
+        self.log('info', cmd)
 
         proc = subprocess.run(
             [cmd],
@@ -208,7 +213,8 @@ class Tortuga:
         )
 
         if proc.returncode != 0:
-            logger.warning(proc.stderr.decode())
+            self.log('warning', proc.stdout.decode())
+            self.log('warning', proc.stderr.decode())
             raise Exception('Non-zero return code returned: {}'.format(
                 proc.returncode
             ))
