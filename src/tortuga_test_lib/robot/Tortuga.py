@@ -56,9 +56,11 @@ class Tortuga:
 
         #
         # If this is running remotely, then we need to spit out log messages
-        # using a print statement so they are properly captured
+        # using a print statement so they are properly captured. Warning
+        # and error messages seem to be automatically captured, so we
+        # don't need to do anything for those.
         #
-        if self.remote:
+        if self.remote and level.lower() not in ['warning', 'error']:
             print('{}: {}'.format(level.upper(), msg))
 
     def wait_for_firstboot(self):
@@ -230,7 +232,7 @@ class Tortuga:
         # Test the exit codes
         #
         if proc.returncode not in exit_code:
-            self._log('warning', proc.stdout.decode())
+            self._log('info', proc.stdout.decode())
             self._log('warning', proc.stderr.decode())
             raise Exception('Unsuccessful exit code: {}'.format(
                 proc.returncode
