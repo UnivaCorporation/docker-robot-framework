@@ -193,12 +193,13 @@ class Tortuga:
 
         return True
 
-    def run_command(self, *args, **kwargs) -> str:
+    def run_command(self,
+                    cmd: str,
+                    exit_code: Union[int, List[int]] = 0) -> str:
         """
         Runs a tortuga CLI command.
 
-        :param args:                           the command and arguments to
-                                               provide to the command
+        :param cmd:                            the command (and arguments)
         :param Union[int,List[int]] exit_code: the exit code(s) to expect as
                                                successful (use a list if more
                                                than one is valid)
@@ -206,9 +207,18 @@ class Tortuga:
         :return str: the output of the command
 
         """
-        cmd = ' '.join(args)
         self._log('info', cmd)
 
+        #
+        # Convert exit_code to a list of integers
+        #
+        if not isinstance(exit_code, list):
+            exit_code = [exit_code]
+        exit_code = [int(v) for v in exit_code]
+
+        #
+        # Run the command
+        #
         proc = subprocess.run(
             [cmd],
             stdout=subprocess.PIPE,
@@ -216,10 +226,9 @@ class Tortuga:
             shell=True
         )
 
-        exit_code = kwargs.get('exit_code', [0])
-        if not isinstance(exit_code, list):
-            exit_code = [exit_code]
-
+        #
+        # Test the exit codes
+        #
         if proc.returncode not in exit_code:
             self._log('warning', proc.stdout.decode())
             self._log('warning', proc.stderr.decode())
