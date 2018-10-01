@@ -251,6 +251,7 @@ class Tortuga:
         :return Union[list, dict]: parsed data structure
 
         """
+        path = path.strip()
         if not os.path.exists(path):
             raise Exception('File not found: {}'.format(path))
 
