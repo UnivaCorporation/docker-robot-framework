@@ -1,5 +1,7 @@
 FROM python:latest
 
+RUN apt-get install unzip
+
 COPY src /project/src/
 COPY setup.py /project/
 
