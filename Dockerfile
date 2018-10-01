@@ -1,7 +1,7 @@
 FROM python:latest
 
 RUN apt-get -y update
-RUN apt-get -y install unzip
+RUN apt-get -y install unzip jq
 
 COPY src /project/src/
 COPY setup.py /project/
