@@ -1,6 +1,6 @@
 FROM python:latest
 
-RUN apt-get install unzip
+RUN apt-get install zip -y
 
 COPY src /project/src/
 COPY setup.py /project/
