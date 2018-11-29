@@ -13,6 +13,8 @@
 # limitations under the License.
 
 import logging
+import socket
+import time
 from typing import Dict, Tuple
 
 from tortuga_test_lib.cloud_provider.base import CloudProviderLauncher
@@ -59,8 +61,12 @@ class CloudProvider:
         """
         launcher = self._get_launcher(provider)
 
-        return launcher.launch_vm(region, security_group_id, subnet_id,
+        result = launcher.launch_vm(region, security_group_id, subnet_id,
                                   image_id, instance_type, **kwargs)
+        # Wait for the ssh port to be open
+        if len(result) == 4 and result[1]:
+            self.wait_for_port(result[1],22,40)
+        return result
 
     def delete_vm(self, provider: str, region: str, instance_id: str):
         """
@@ -73,3 +79,33 @@ class CloudProvider:
         """
         launcher = self._get_launcher(provider)
         launcher.delete_vm(region, instance_id)
+
+    def _is_open(self, host: str, port: int) -> bool:
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.settimeout(5)
+        try:
+                s.connect((host, port))
+                s.shutdown(socket.SHUT_RDWR)
+                return True
+        except:
+                return False
+        finally:
+                s.close()
+
+    def wait_for_port(self, host: str, port: int, retries: int) -> bool:
+        """
+        Waits for a port to be open
+
+        :param str host: The hostname to check
+        :param int port: The port to check
+        :param int retries: How many times to check with 1 second waits in between
+
+        """
+        host_open = False
+        for i in range(retries):
+                if self._is_open(host, port):
+                        host_open = True
+                        break
+                else:
+                        time.sleep(1)
+        return host_open
