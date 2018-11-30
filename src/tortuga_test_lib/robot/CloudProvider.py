@@ -62,17 +62,17 @@ class CloudProvider:
         launcher = self._get_launcher(provider)
 
         result = launcher.launch_vm(region, security_group_id, subnet_id,
-                                  image_id, instance_type, **kwargs)
+                                    image_id, instance_type, **kwargs)
         # Wait for the ssh port to be open
         if len(result) == 4 and result[1]:
-            self.wait_for_port(result[1],22,40)
+            self.wait_for_port(result[1], 22, 40)
         return result
 
     def delete_vm(self, provider: str, region: str, instance_id: str):
         """
         Deletes a VM instance.
 
-        :param str provider: key for one of the supported providers
+        :param str provider:    key for one of the supported providers
         :param str region:
         :param str instance_id:
 
@@ -96,9 +96,10 @@ class CloudProvider:
         """
         Waits for a port to be open
 
-        :param str host: The hostname to check
-        :param int port: The port to check
-        :param int retries: How many times to check with 1 second waits in between
+        :param str host:    The hostname to check
+        :param int port:    The port to check
+        :param int retries: How many times to check with 1 second waits in
+                            between
 
         """
         host_open = False
