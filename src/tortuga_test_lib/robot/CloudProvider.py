@@ -42,7 +42,7 @@ class CloudProvider:
 
     def launch_vm(self, provider: str, region: str, security_group_id: str,
                   subnet_id: str, image_id: str, instance_type: str,
-                  **kwargs) -> Tuple[str, str, str, str]:
+                  instance_profile: str, **kwargs) -> Tuple[str, str, str, str]:
         """
         Launches a VM instance.
 
@@ -52,6 +52,7 @@ class CloudProvider:
         :param str subnet_id:
         :param str image_id:
         :param str instance_type:
+        :param str instance_profile
         :param kwargs:
 
         :return Tuple[str, str, str, str]: a tuple containing the instance id,
@@ -62,7 +63,7 @@ class CloudProvider:
         launcher = self._get_launcher(provider)
 
         result = launcher.launch_vm(region, security_group_id, subnet_id,
-                                    image_id, instance_type, **kwargs)
+                                    image_id, instance_type, instance_profile, **kwargs)
         # Wait for the ssh port to be open
         if len(result) == 4 and result[1]:
             self.wait_for_port(result[1], 22, 40)

@@ -34,6 +34,7 @@ class AwsLauncher(CloudProviderLauncher):
                   subnet_id: str,
                   image_id: str,
                   instance_type: str,
+                  instance_profile: str,
                   **kwargs) -> Tuple[str, str, str, str]:
         #
         # Build a unique identifier to use as the instance and key pair name
@@ -51,6 +52,9 @@ class AwsLauncher(CloudProviderLauncher):
         # Crate the instance
         #
         instance_list = ec2.create_instances(
+            IamInstanceProfile={
+                'Name' : instance_profile
+            },
             ImageId=image_id,
             InstanceType=instance_type,
             MinCount=1,

@@ -22,6 +22,7 @@ class CloudProviderLauncher:
                   subnet_id: str,
                   image_id: str,
                   instance_type: str,
+                  instance_profile: str,
                   **kwargs) -> Tuple[str, str, str, str]:
         """
         Launches a VM instance.
@@ -31,6 +32,7 @@ class CloudProviderLauncher:
         :param str subnet_id:
         :param str image_id:
         :param str instance_type:
+        :param str instance_profile
         :param kwargs:
 
         :return Tuple[str, str, str, str]: a tuple containing the instance id,
