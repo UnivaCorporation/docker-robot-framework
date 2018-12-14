@@ -35,6 +35,7 @@ setup(
         '': 'src'
     },
     install_requires=[
+        'awscli',
         'boto3',
         'bs4',
         'daemonize',
